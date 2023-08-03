@@ -2,15 +2,28 @@ import express from "express";
 import mongoose from "mongoose";
 import game from './routes/gameRoute.js';
 import user from './routes/userRoute.js';
+import auth from './routes/auth.js';
 import dotenv from "dotenv";
+import cors from 'cors';
+import http from 'http';
+import {Server} from 'socket.io';
+
+
 
 dotenv.config();
 //console.log(dotenv.config());
+
+
 const app = express();
 app.use('/api/user', user);
 app.use('/api/game', game);
+app.use('/api/auth', auth);
+app.use(cors());
+const server = http.createServer(app);
 
-
+export const io = new Server(server, {
+  //cors 
+})
 
 async function connectToMongoDB(connectionString: string) {
   await mongoose.connect(connectionString);
@@ -32,7 +45,7 @@ const user = new User({
 });
 user.save();
 
-const size = 3; // For a 3x3 board
+const size = 3; 
 const emptyCell = '_';
 const initialBoard = Array.from({ length: size }, () => Array(size).fill(emptyCell));
 
@@ -40,16 +53,7 @@ const initialBoard = Array.from({ length: size }, () => Array(size).fill(emptyCe
 const game = new Game({
   playerX: ["64ca44f8509375329d47dece", "X"],
   playerO: ["64ca4545cccdcc50e65abb63", "O"],
-  status: "in progress",
-  board: initialBoard,
-  moves: [
-    {
-      row: 2,
-      column: 1,
-      player: "O",
-    },
-    { row: 1, column: 2, player: "O" },
-  ],
+  status: "in progress"
 });
 game.save();
 */

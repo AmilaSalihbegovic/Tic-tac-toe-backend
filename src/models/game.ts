@@ -2,6 +2,7 @@ import mongoose, {ObjectId, Schema, model, set} from 'mongoose';
 import Joi from 'joi';
 
 interface IGame{
+    GameID: number,
     //Is first player in the game
     playerX:{
         playerID: ObjectId,
@@ -12,16 +13,11 @@ interface IGame{
         playerID: ObjectId | 0,
         name: string,
     },
-    status: string,
-    board: [[string]],
-    moves: [{
-        row: number,
-        column: number,
-        player: string
-    }]
+    status: string
 }
 
 const gameSchema = new Schema<IGame>({
+    GameID: {type: Number, required: true, unique: true},
     playerX: {
         playerID: {type: Schema.Types.ObjectId, ref:'User'},
         name: {
@@ -47,13 +43,7 @@ const gameSchema = new Schema<IGame>({
         enum:{
             values:['in progress','Player X won', 'Player O won', 'Draw']
         }
-    },
-    board:{type:[[String]], required:true},
-    moves:[{
-        row: {type: Number, required: true},
-        column:{type: Number, required: true},
-        player: {type: String, enum:{values:['X','O']}}
-    }],
+    }
 })
 
 export const Game = model<IGame>('Game', gameSchema);
