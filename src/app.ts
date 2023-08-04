@@ -36,27 +36,6 @@ try {
   console.log("Error" + e);
 }
 
-//console.log(process.env)
-/*
-const user = new User({
-    name: 'test2',
-    email: 'test2',
-    password: 'testtest2'
-});
-user.save();
-
-const size = 3; 
-const emptyCell = '_';
-const initialBoard = Array.from({ length: size }, () => Array(size).fill(emptyCell));
-
-
-const game = new Game({
-  playerX: ["64ca44f8509375329d47dece", "X"],
-  playerO: ["64ca4545cccdcc50e65abb63", "O"],
-  status: "in progress"
-});
-game.save();
-*/
 const port = process.env.PORT || 4000;
 
 app.listen(port, () => {
