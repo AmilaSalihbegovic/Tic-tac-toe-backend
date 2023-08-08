@@ -4,7 +4,8 @@ import Joi from 'joi';
 interface Move{
     row: number,
     col: number,
-    player: ObjectId
+    player: ObjectId,
+    currentPlayer: string
 }
 
 interface IGame{
@@ -20,7 +21,8 @@ interface IGame{
     },
     status: string,
     board: string[][],
-    moves: Move[]
+    moves: Move[],
+    currentPlayer: string
 }
 
 const gameSchema = new Schema<IGame>({
@@ -52,6 +54,10 @@ const gameSchema = new Schema<IGame>({
     },
     board: {type:[[String]], required: true},
     moves: [{ player: Schema.Types.ObjectId, row: Number, col: Number }],
+    currentPlayer: {type: String, required: true, default: "X",
+    enum: {
+        values:['X', 'O']
+    }}
 })
 
 export const Game = model<IGame>('Game', gameSchema);
