@@ -19,13 +19,19 @@ const gameWinner = async (
     game.status = "Player O won";
     game.save();
     return res.status(200).send("Player O has won!");
-  } else if (game.moves.length === 9) {
+  } else if (game.moves.length === 8) {
     game.status = "Draw";
     game.save();
     return res.status(200).send("Draw");
   } else {
     game.moves.push({ player: playerID, row: row, col: col });
     game.save();
+    const lastMove = game.moves[game.moves.length - 1];
+    const lastMoveRow = lastMove.row;
+    const lastMoveCol = lastMove.col;
+    if(playerID===null){
+      return res.status(200).send([lastMoveRow, lastMoveCol]);
+    }
     return res.status(200).send("Move is made");
   }
 };
@@ -42,23 +48,23 @@ export const makeMoveFunction = async (
   const num_rows = game.board.length;
   const num_col = game.board[0].length;
 
-  if(game.playerX.playerID.toString() !==playerID && playerID !== null){
-    return res.status(403).send("You cannot access this game!");
+   if(game.playerX.playerID.toString() !==playerID && playerID !== null && !game.playerO.playerID){
+     return res.status(403).send("You cannot access this game3!");
 
-  }
+   }
   currentSymbol = game.playerX.playerID.toString() === playerID ? "X" : "O";
   if (!game.playerO.playerID) {
     if (
       (game.playerX.playerID.toString() !== playerID &&
         currentSymbol === "X") 
     ) {
-      return res.status(403).send("You cannot access this game!");
+      return res.status(403).send("You cannot access this game2!");
     }
   } else if (
     (game.playerX.playerID.toString() !== playerID && currentSymbol === "X") ||
     (game.playerO.playerID.toString() !== playerID && currentSymbol === "O")
   ) {
-    return res.status(403).send("You cannot access this game!");
+    return res.status(403).send("You cannot access this game1!");
   }
   if (game.status === "in progress") {
     if (!game.playerO.playerID && playerID === null && currentSymbol === "O") {

@@ -13,7 +13,7 @@ export const getAllGames = async (req: any, res: any) => {
     return console.log("Error while getting the data", error);
   }
 };
-export const getGameByID = async (req: any, res: any) => {
+export const getGameHistoryID = async (req: any, res: any) => {
   try {
     const game = await Game.findById(req.params.id);
     let info = "";
@@ -23,16 +23,27 @@ export const getGameByID = async (req: any, res: any) => {
       for (const move in game.moves) {
         info += `\nMove ${move}:row ${game.moves[move].row}, column: ${game.moves[move].col} \n`;
       }
+      const data = {
+        status: game.status,
+        moves: info,
+        board: JSON.stringify(game.board)
+      }
       res
         .status(200)
-        .send(
-          "Status: " +
-            game.status +
-            "Moves: " +
-            info +
-            "Game board:" +
-            JSON.stringify(game.board)
-        );
+        .send(data);
+    }
+  } catch (error) {
+    return res.status(400).send("Could not get the game.");
+  }
+};
+export const getGameByID = async (req: any, res: any) => {
+  try {
+    const game = await Game.findById(req.params.id);
+    let info = "";
+    if (!game) {
+      res.status(400).send("Game with given ID does not exist.");
+    } else {
+     res.status(200).send(game);
     }
   } catch (error) {
     return res.status(400).send("Could not get the game.");
@@ -72,7 +83,7 @@ export const createNewGame = async (req: any, res: any) => {
         currentPlayer: "X",
       });
       game.save();
-      res.status(200).send("Game created!");
+      res.status(200).send(game);
     } else {
       const game = await Game.create({
         playerX: playerX,
@@ -83,7 +94,7 @@ export const createNewGame = async (req: any, res: any) => {
         currentPlayer: "X",
       });
       game.save();
-      res.status(200).send("Game created!");
+      res.status(200).send(game);
     }
   } catch (error) {
     res
@@ -104,7 +115,7 @@ export const joinGame = async (req: any, res: any) => {
     if (!game) {
       res.status(400).send("Game does not exist, try again");
     } else {
-      if (game.playerO.playerID) {
+      if (game.playerO.playerID !== null) {
         res.status(400).send("Game is already full.");
       } else {
         game.playerO.playerID = playerID;
