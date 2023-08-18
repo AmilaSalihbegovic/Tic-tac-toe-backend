@@ -19,7 +19,7 @@ const gameWinner = async (
     game.status = "Player O won";
     game.save();
     return res.status(200).send("Player O has won!");
-  } else if (game.moves.length === 8) {
+  } else if (game.moves.length === 9) {
     game.status = "Draw";
     game.save();
     return res.status(200).send("Draw");
