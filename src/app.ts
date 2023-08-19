@@ -8,6 +8,8 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 import { makeMove } from "./controllers/gameController.js";
+import { Game } from "./models/game.js";
+import { gameWin } from "./helper/gameWin.js";
 
 dotenv.config();
 
@@ -47,6 +49,40 @@ server.listen(port, () => {
 
 
 io.on("connection", (socket)=>{
+    console.log("A user connected:" +socket.id);
+
+    socket.on('joinGame', async(gameId)=>{
+      const game = await Game.findById(gameId);
+      socket.join(gameId);
+      console.log(game);
+
+      io.to(gameId).emit('gameState', {board: game?.board, moves: game?.moves, status: game?.status})
+    });
+
+    socket.on('makeMove', async({id, data})=>{
+      console.log(data);
+      const updatedGame = await Game.findById(id);
+      const row = data?.row;
+      const col = data?.col;
+      const player = data?.playerID;
+      console.log(player);
+      if(updatedGame!==null){
+        updatedGame.board[row][col] = player === updatedGame.playerO.playerID.toString()? "O":"X"; 
+        updatedGame.moves.push({player: player, row:row, col:col})
+        updatedGame.save();
+        const winner = gameWin(updatedGame.board);
+        if(winner === "X"){
+          updatedGame.status = "Player X won";
+        }else if (winner==="O"){
+          updatedGame.status = "Player O won";        
+        }else if(updatedGame.moves.length === 9){
+          updatedGame.status = "Draw";
+        }else{
+          updatedGame.status = "in progress";      
+        }
+      }
+      io.to(id).emit('gameState', {board: updatedGame?.board, moves: updatedGame?.moves, status: updatedGame?.status})
+    });
 
     socket.on("disconnect", () => {
       console.log("A user disconnected:", socket.id);

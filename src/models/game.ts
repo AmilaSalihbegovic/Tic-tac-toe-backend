@@ -4,8 +4,7 @@ import Joi from 'joi';
 interface Move{
     row: number,
     col: number,
-    player: ObjectId,
-    currentPlayer: string
+    player: ObjectId
 }
 
 interface IGame{

@@ -13,29 +13,6 @@ export const getAllGames = async (req: any, res: any) => {
     return console.log("Error while getting the data", error);
   }
 };
-export const getGameHistoryID = async (req: any, res: any) => {
-  try {
-    const game = await Game.findById(req.params.id);
-    let info = "";
-    if (!game) {
-      res.status(400).send("Game with given ID does not exist.");
-    } else {
-      for (const move in game.moves) {
-        info += `\nMove ${move}:row ${game.moves[move].row}, column: ${game.moves[move].col} \n`;
-      }
-      const data = {
-        status: game.status,
-        moves: info,
-        board: JSON.stringify(game.board)
-      }
-      res
-        .status(200)
-        .send(data);
-    }
-  } catch (error) {
-    return res.status(400).send("Could not get the game.");
-  }
-};
 export const getGameByID = async (req: any, res: any) => {
   try {
     const game = await Game.findById(req.params.id);
