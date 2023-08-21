@@ -67,7 +67,7 @@ io.on("connection", (socket)=>{
       const player = data?.playerID;
       console.log(player);
       if(updatedGame!==null){
-        updatedGame.board[row][col] = player === updatedGame.playerO.playerID.toString()? "O":"X"; 
+        updatedGame.board[row][col] = player === updatedGame.playerX.playerID.toString()? "X":"O"; 
         updatedGame.moves.push({player: player, row:row, col:col})
         updatedGame.save();
         const winner = gameWin(updatedGame.board);

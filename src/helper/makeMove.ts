@@ -56,16 +56,13 @@ export const makeMoveFunction = async (
     return res.status(403).send("You cannot access this game3!");
   }
   currentSymbol = game.playerX.playerID.toString() === playerID ? "X" : "O";
-  if (!game.playerO.playerID) {
-    if (
-      game.playerX.playerID.toString() !== playerID &&
-      currentSymbol === "X"
-    ) {
-      return res.status(403).send("You cannot access this game2!");
-    }
+  if (game.playerX.playerID.toString() !== playerID && currentSymbol === "X") {
+    return res.status(403).send("You cannot access this game2!");
   } else if (
     (game.playerX.playerID.toString() !== playerID && currentSymbol === "X") ||
-    (game.playerO.playerID.toString() !== playerID && currentSymbol === "O")
+    (game.playerO.playerID &&
+      game.playerO.playerID.toString() !== playerID &&
+      currentSymbol === "O")
   ) {
     return res.status(403).send("You cannot access this game1!");
   }
@@ -81,24 +78,22 @@ export const makeMoveFunction = async (
     game.board[aiRow][aiCol] = "O";
     return gameWinner(req, res, game, playerID, aiRow, aiCol);
   }
+  const boardField = game.board[row][col];
   if (
     game.status === "in progress" &&
     0 <= row &&
     row < num_rows &&
     0 <= col &&
-    col < num_col
+    col < num_col &&
+    boardField === ""
   ) {
-    const boardField = game.board[row][col];
-    if (boardField !== "") {
-      return res.status(400).send("The field is not empty!");
-    }
     game.board[row][col] = currentSymbol;
     gameWinner(req, res, game, playerID, row, col);
   } else {
     return res
       .status(400)
       .send(
-        "Cannot make move, ether its not on board or the game is already finished!"
+        "Cannot make move, ether its not on board or the game is already finished"
       );
   }
 };
