@@ -7,17 +7,11 @@ import { makeMove } from "../controllers/gameController.js";
 const router = express.Router();
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
-//Get all games
 router.get("/", getAllGames);
-//get game by id for game history later on
 router.get("/:id", getGameByID);
-//Create new game
 router.post("/", createNewGame);
-//join the game
 router.post("/:id", joinGame);
-//make move
 router.post("/move/:id", makeMove);
-//delete game
 router.delete("/:id", deleteGame);
 
 export default router;

@@ -29,7 +29,7 @@ const gameWinner = async (
     const lastMove = game.moves[game.moves.length - 1];
     const lastMoveRow = lastMove.row;
     const lastMoveCol = lastMove.col;
-    if(playerID===null){
+    if (playerID === null) {
       return res.status(200).send([lastMoveRow, lastMoveCol]);
     }
     return res.status(200).send("Move is made");
@@ -48,15 +48,18 @@ export const makeMoveFunction = async (
   const num_rows = game.board.length;
   const num_col = game.board[0].length;
 
-   if(game.playerX.playerID.toString() !==playerID && playerID !== null && !game.playerO.playerID){
-     return res.status(403).send("You cannot access this game3!");
-
-   }
+  if (
+    game.playerX.playerID.toString() !== playerID &&
+    playerID !== null &&
+    !game.playerO.playerID
+  ) {
+    return res.status(403).send("You cannot access this game3!");
+  }
   currentSymbol = game.playerX.playerID.toString() === playerID ? "X" : "O";
   if (!game.playerO.playerID) {
     if (
-      (game.playerX.playerID.toString() !== playerID &&
-        currentSymbol === "X") 
+      game.playerX.playerID.toString() !== playerID &&
+      currentSymbol === "X"
     ) {
       return res.status(403).send("You cannot access this game2!");
     }
@@ -66,25 +69,36 @@ export const makeMoveFunction = async (
   ) {
     return res.status(403).send("You cannot access this game1!");
   }
-  if (game.status === "in progress") {
-    if (!game.playerO.playerID && playerID === null && currentSymbol === "O") {
-      const aiMove = FindBestMove(game.board);
-      const aiRow = aiMove.row;
-      const aiCol = aiMove.col;
-      game.board[aiRow][aiCol] = "O";
-      gameWinner(req, res, game, playerID, aiRow, aiCol);
-    } else if (0 <= row && row < num_rows && 0 <= col && col < num_col) {
-      const boardField = game.board[row][col];
-      if (boardField !== "") {
-        return res.status(400).send("The field is not empty!");
-      } else {
-        game.board[row][col] = currentSymbol;
-        gameWinner(req, res, game, playerID, row, col);
-      }
-    } else {
-      return res.status(400).send("The move must be in board");
+  if (
+    game.status === "in progress" &&
+    !game.playerO.playerID &&
+    playerID === null &&
+    currentSymbol === "O"
+  ) {
+    const aiMove = FindBestMove(game.board);
+    const aiRow = aiMove.row;
+    const aiCol = aiMove.col;
+    game.board[aiRow][aiCol] = "O";
+    return gameWinner(req, res, game, playerID, aiRow, aiCol);
+  }
+  if (
+    game.status === "in progress" &&
+    0 <= row &&
+    row < num_rows &&
+    0 <= col &&
+    col < num_col
+  ) {
+    const boardField = game.board[row][col];
+    if (boardField !== "") {
+      return res.status(400).send("The field is not empty!");
     }
+    game.board[row][col] = currentSymbol;
+    gameWinner(req, res, game, playerID, row, col);
   } else {
-    return res.status(400).send("Game is finished!");
+    return res
+      .status(400)
+      .send(
+        "Cannot make move, ether its not on board or the game is already finished!"
+      );
   }
 };
