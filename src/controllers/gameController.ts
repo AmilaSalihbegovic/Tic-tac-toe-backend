@@ -17,10 +17,9 @@ export const getGameByID = async (req: any, res: any) => {
     const game = await Game.findById(req.params.id);
     let info = "";
     if (!game) {
-      res.status(400).send("Game with given ID does not exist.");
-    } else {
-      res.status(200).send(game);
+      return res.status(400).send("Game with given ID does not exist.");
     }
+    return res.status(200).send(game);
   } catch (error) {
     return res.status(400).send("Could not get the game.");
   }
@@ -29,10 +28,9 @@ export const deleteGame = async (req: any, res: any) => {
   try {
     const game = await Game.findByIdAndDelete(req.params.id);
     if (!game) {
-      res.status(400).send("Game with given ID does not exist.");
-    } else {
-      res.status(200).send("A game has been deleted successfully");
+      return res.status(400).send("Game with given ID does not exist.");
     }
+    return res.status(200).send("A game has been deleted successfully");
   } catch (error) {
     return console.log("Error while trying to delete game.", error);
   }

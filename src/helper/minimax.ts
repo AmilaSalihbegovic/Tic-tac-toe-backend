@@ -13,9 +13,11 @@ export function minimax(
 
   if (gameWin(board) === "X") {
     return scores.X;
-  } else if (gameWin(board) === "O") {
+  }
+  if (gameWin(board) === "O") {
     return scores.O;
-  } else if (depth === 9) {
+  }
+  if (depth === 9) {
     return scores.draw;
   }
 
@@ -32,20 +34,19 @@ export function minimax(
       }
     }
     return bestScore;
-  } else {
-    let bestScore = Infinity;
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 3; col++) {
-        if (board[row][col] === "") {
-          board[row][col] = "X";
-          const score = minimax(board, depth + 1, true);
-          board[row][col] = "";
-          bestScore = Math.min(bestScore, score);
-        }
+  }
+  let bestScore = Infinity;
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      if (board[row][col] === "") {
+        board[row][col] = "X";
+        const score = minimax(board, depth + 1, true);
+        board[row][col] = "";
+        bestScore = Math.min(bestScore, score);
       }
     }
-    return bestScore;
   }
+  return bestScore;
 }
 
 export function FindBestMove(board: string[][]) {
