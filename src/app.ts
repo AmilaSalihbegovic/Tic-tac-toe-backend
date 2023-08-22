@@ -23,10 +23,10 @@ app.use("/api/auth", auth);
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors:{
+  cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST"],
+  },
 });
 
 async function connectToMongoDB(connectionString: string) {
@@ -40,54 +40,62 @@ try {
   console.log("Error" + e);
 }
 
-
 const port = process.env.PORT || 4000;
 
 server.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
 
+io.on("connection", (socket) => {
+  console.log("A user connected:" + socket.id);
 
-io.on("connection", (socket)=>{
-    console.log("A user connected:" +socket.id);
+  socket.on("joinGame", async (gameId) => {
+    const game = await Game.findById(gameId);
+    socket.join(gameId);
+    console.log(game);
 
-    socket.on('joinGame', async(gameId)=>{
-      const game = await Game.findById(gameId);
-      socket.join(gameId);
-      console.log(game);
-
-      io.to(gameId).emit('gameState', {board: game?.board, moves: game?.moves, status: game?.status})
+    io.to(gameId).emit("gameState", {
+      board: game?.board,
+      moves: game?.moves,
+      status: game?.status,
     });
+  });
 
-    socket.on('makeMove', async({id, data})=>{
-      console.log(data);
-      const updatedGame = await Game.findById(id);
-      const row = data?.row;
-      const col = data?.col;
-      const player = data?.playerID;
-      console.log(player);
-      if(updatedGame!==null){
-        updatedGame.board[row][col] = player === updatedGame.playerO.playerID.toString()? "O":"X"; 
-        updatedGame.moves.push({player: player, row:row, col:col})
-        updatedGame.save();
-        const winner = gameWin(updatedGame.board);
-        if(winner === "X"){
-          updatedGame.status = "Player X won";
-        }else if (winner==="O"){
-          updatedGame.status = "Player O won";        
-        }else if(updatedGame.moves.length === 9){
-          updatedGame.status = "Draw";
-        }else{
-          updatedGame.status = "in progress";      
-        }
+  socket.on("makeMove", async ({ id, data }) => {
+    console.log(data);
+    const updatedGame = await Game.findById(id);
+    const row = data?.row;
+    const col = data?.col;
+    const player = data?.playerID;
+    console.log(player);
+    if (updatedGame !== null) {
+      updatedGame.board[row][col] =
+        player === updatedGame.playerX.playerID.toString() ? "X" : "O";
+      updatedGame.moves.push({ player: player, row: row, col: col });
+      updatedGame.save();
+      const winner = gameWin(updatedGame.board);
+      if (winner === "X") {
+        return (updatedGame.status = "Player X won");
       }
-      io.to(id).emit('gameState', {board: updatedGame?.board, moves: updatedGame?.moves, status: updatedGame?.status})
+      if (winner === "O") {
+        return (updatedGame.status = "Player O won");
+      }
+      if (updatedGame.moves.length === 9) {
+        return (updatedGame.status = "Draw");
+      }
+      updatedGame.status = "in progress";
+    }
+    io.to(id).emit("gameState", {
+      board: updatedGame?.board,
+      moves: updatedGame?.moves,
+      status: updatedGame?.status,
     });
+  });
 
-    socket.on("disconnect", () => {
-      console.log("A user disconnected:", socket.id);
-    });
-  })
+  socket.on("disconnect", () => {
+    console.log("A user disconnected:", socket.id);
+  });
+});
 app.set("io", io);
 
 export { app, server, io };
